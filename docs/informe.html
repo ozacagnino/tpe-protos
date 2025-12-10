@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Trabajo Práctico Especial - Protocolos de Comunicación</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">@media print {
+body { font-size: 11pt; }
+pre { font-size: 9pt; page-break-inside: avoid; }
+table { page-break-inside: avoid; }
+h1, h2, h3 { page-break-after: avoid; }
+nav#TOC { display: none; }
+}
+body {
+font-family: 'Georgia', 'Times New Roman', serif;
+max-width: 850px;
+margin: 0 auto;
+padding: 40px 20px;
+line-height: 1.7;
+color: #333;
+}
+h1 {
+color: #1a1a1a;
+border-bottom: 3px solid #333;
+padding-bottom: 10px;
+margin-top: 40px;
+}
+h2 {
+color: #2a2a2a;
+border-bottom: 1px solid #ccc;
+padding-bottom: 8px;
+margin-top: 35px;
+}
+h3 {
+color: #3a3a3a;
+margin-top: 25px;
+}
+code {
+background-color: #f5f5f5;
+border: 1px solid #e1e1e1;
+border-radius: 3px;
+padding: 2px 6px;
+font-family: 'Monaco', 'Consolas', monospace;
+font-size: 0.9em;
+}
+pre {
+background-color: #f8f8f8;
+border: 1px solid #ddd;
+border-radius: 5px;
+padding: 15px;
+overflow-x: auto;
+font-size: 0.85em;
+}
+pre code {
+background: none;
+border: none;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 25px 0;
+}
+th, td {
+border: 1px solid #ddd;
+padding: 10px 12px;
+text-align: left;
+}
+th {
+background-color: #f0f0f0;
+font-weight: bold;
+}
+tr:nth-child(even) {
+background-color: #fafafa;
+}
+nav#TOC {
+background: #f9f9f9;
+border: 1px solid #ddd;
+border-radius: 5px;
+padding: 20px 30px;
+margin-bottom: 40px;
+}
+nav#TOC h2 {
+margin-top: 0;
+border-bottom: none;
+}
+nav#TOC ul {
+list-style-type: none;
+padding-left: 20px;
+}
+nav#TOC > ul {
+padding-left: 0;
+}
+nav#TOC a {
+color: #0066cc;
+text-decoration: none;
+}
+nav#TOC a:hover {
+text-decoration: underline;
+}
+blockquote {
+border-left: 4px solid #ddd;
+margin: 20px 0;
+padding-left: 20px;
+color: #666;
+}
+hr {
+border: none;
+border-top: 1px solid #ddd;
+margin: 40px 0;
+}
+
+.title-block {
+text-align: center;
+margin-bottom: 50px;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Trabajo Práctico Especial - Protocolos de
+Comunicación</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#trabajo-práctico-especial---protocolos-de-comunicación" id="toc-trabajo-práctico-especial---protocolos-de-comunicación">Trabajo
+Práctico Especial - Protocolos de Comunicación</a>
+<ul>
+<li><a href="#servidor-proxy-socksv5" id="toc-servidor-proxy-socksv5">Servidor Proxy SOCKSv5</a>
+<ul>
+<li><a href="#integrantes-del-grupo" id="toc-integrantes-del-grupo">Integrantes del Grupo</a></li>
+</ul></li>
+<li><a href="#índice" id="toc-índice">Índice</a></li>
+<li><a href="#descripción-de-protocolos-y-aplicaciones" id="toc-descripción-de-protocolos-y-aplicaciones">1. Descripción de
+Protocolos y Aplicaciones</a>
+<ul>
+<li><a href="#protocolo-socksv5" id="toc-protocolo-socksv5">1.1
+Protocolo SOCKSv5</a></li>
+<li><a href="#protocolo-de-autenticación-rfc-1929" id="toc-protocolo-de-autenticación-rfc-1929">1.2 Protocolo de
+Autenticación RFC 1929</a></li>
+<li><a href="#protocolo-de-gestión-y-monitoreo" id="toc-protocolo-de-gestión-y-monitoreo">1.3 Protocolo de Gestión y
+Monitoreo</a></li>
+<li><a href="#aplicación-servidor-socks5d" id="toc-aplicación-servidor-socks5d">1.4 Aplicación Servidor
+(socks5d)</a></li>
+<li><a href="#aplicación-cliente-de-gestión-client" id="toc-aplicación-cliente-de-gestión-client">1.5 Aplicación Cliente de
+Gestión (client)</a></li>
+</ul></li>
+<li><a href="#problemas-encontrados" id="toc-problemas-encontrados">2.
+Problemas Encontrados</a>
+<ul>
+<li><a href="#resolución-dns-no-bloqueante" id="toc-resolución-dns-no-bloqueante">2.1 Resolución DNS No
+Bloqueante</a></li>
+<li><a href="#conexión-a-múltiples-direcciones-ip" id="toc-conexión-a-múltiples-direcciones-ip">2.2 Conexión a Múltiples
+Direcciones IP</a></li>
+<li><a href="#lecturas-y-escrituras-parciales" id="toc-lecturas-y-escrituras-parciales">2.3 Lecturas y Escrituras
+Parciales</a></li>
+<li><a href="#manejo-de-conexiones-concurrentes" id="toc-manejo-de-conexiones-concurrentes">2.4 Manejo de Conexiones
+Concurrentes</a></li>
+<li><a href="#compatibilidad-macos-linux" id="toc-compatibilidad-macos-linux">2.5 Compatibilidad MacOS /
+Linux</a></li>
+</ul></li>
+<li><a href="#limitaciones-de-la-aplicación" id="toc-limitaciones-de-la-aplicación">3. Limitaciones de la
+Aplicación</a>
+<ul>
+<li><a href="#limitaciones-funcionales" id="toc-limitaciones-funcionales">3.1 Limitaciones Funcionales</a></li>
+<li><a href="#limitaciones-técnicas" id="toc-limitaciones-técnicas">3.2
+Limitaciones Técnicas</a></li>
+<li><a href="#limitaciones-de-seguridad" id="toc-limitaciones-de-seguridad">3.3 Limitaciones de
+Seguridad</a></li>
+</ul></li>
+<li><a href="#posibles-extensiones" id="toc-posibles-extensiones">4.
+Posibles Extensiones</a>
+<ul>
+<li><a href="#extensiones-de-corto-plazo" id="toc-extensiones-de-corto-plazo">4.1 Extensiones de Corto
+Plazo</a></li>
+<li><a href="#extensiones-de-mediano-plazo" id="toc-extensiones-de-mediano-plazo">4.2 Extensiones de Mediano
+Plazo</a></li>
+<li><a href="#extensiones-de-largo-plazo" id="toc-extensiones-de-largo-plazo">4.3 Extensiones de Largo
+Plazo</a></li>
+</ul></li>
+<li><a href="#conclusiones" id="toc-conclusiones">5. Conclusiones</a>
+<ul>
+<li><a href="#objetivos-cumplidos" id="toc-objetivos-cumplidos">5.1
+Objetivos Cumplidos</a></li>
+<li><a href="#aspectos-técnicos-destacables" id="toc-aspectos-técnicos-destacables">5.2 Aspectos Técnicos
+Destacables</a></li>
+<li><a href="#lecciones-aprendidas" id="toc-lecciones-aprendidas">5.3
+Lecciones Aprendidas</a></li>
+</ul></li>
+<li><a href="#ejemplos-de-prueba" id="toc-ejemplos-de-prueba">6.
+Ejemplos de Prueba</a>
+<ul>
+<li><a href="#prueba-de-handshake-socks5" id="toc-prueba-de-handshake-socks5">6.1 Prueba de Handshake
+SOCKS5</a></li>
+<li><a href="#prueba-de-autenticación" id="toc-prueba-de-autenticación">6.2 Prueba de Autenticación</a></li>
+<li><a href="#prueba-de-conexión-completa-con-curl" id="toc-prueba-de-conexión-completa-con-curl">6.3 Prueba de Conexión
+Completa con curl</a></li>
+<li><a href="#prueba-del-protocolo-de-gestión" id="toc-prueba-del-protocolo-de-gestión">6.4 Prueba del Protocolo de
+Gestión</a></li>
+<li><a href="#prueba-de-estrés" id="toc-prueba-de-estrés">6.5 Prueba de
+Estrés</a></li>
+<li><a href="#resultados-de-pruebas-de-estrés" id="toc-resultados-de-pruebas-de-estrés">6.6 Resultados de Pruebas de
+Estrés</a></li>
+</ul></li>
+<li><a href="#guía-de-instalación" id="toc-guía-de-instalación">7. Guía
+de Instalación</a>
+<ul>
+<li><a href="#requisitos-previos" id="toc-requisitos-previos">7.1
+Requisitos Previos</a></li>
+<li><a href="#compilación" id="toc-compilación">7.2 Compilación</a></li>
+<li><a href="#verificación-de-instalación" id="toc-verificación-de-instalación">7.3 Verificación de
+Instalación</a></li>
+<li><a href="#limpieza" id="toc-limpieza">7.4 Limpieza</a></li>
+</ul></li>
+<li><a href="#instrucciones-de-configuración" id="toc-instrucciones-de-configuración">8. Instrucciones de
+Configuración</a>
+<ul>
+<li><a href="#argumentos-de-línea-de-comandos" id="toc-argumentos-de-línea-de-comandos">8.1 Argumentos de Línea de
+Comandos</a></li>
+<li><a href="#ejemplos-de-configuración" id="toc-ejemplos-de-configuración">8.2 Ejemplos de
+Configuración</a></li>
+<li><a href="#ejecución-como-servicio" id="toc-ejecución-como-servicio">8.3 Ejecución como Servicio</a></li>
+</ul></li>
+<li><a href="#ejemplos-de-configuración-y-monitoreo" id="toc-ejemplos-de-configuración-y-monitoreo">9. Ejemplos de
+Configuración y Monitoreo</a>
+<ul>
+<li><a href="#iniciar-el-servidor" id="toc-iniciar-el-servidor">9.1
+Iniciar el Servidor</a></li>
+<li><a href="#conectar-con-cliente-de-gestión" id="toc-conectar-con-cliente-de-gestión">9.2 Conectar con Cliente de
+Gestión</a></li>
+<li><a href="#sesión-de-monitoreo-completa" id="toc-sesión-de-monitoreo-completa">9.3 Sesión de Monitoreo
+Completa</a></li>
+<li><a href="#monitoreo-de-logs-de-acceso" id="toc-monitoreo-de-logs-de-acceso">9.4 Monitoreo de Logs de
+Acceso</a></li>
+<li><a href="#configuración-de-navegador-firefox" id="toc-configuración-de-navegador-firefox">9.5 Configuración de
+Navegador (Firefox)</a></li>
+</ul></li>
+<li><a href="#documento-de-diseño" id="toc-documento-de-diseño">10.
+Documento de Diseño</a>
+<ul>
+<li><a href="#arquitectura-general" id="toc-arquitectura-general">10.1
+Arquitectura General</a></li>
+<li><a href="#diagrama-de-estados-socks5" id="toc-diagrama-de-estados-socks5">10.2 Diagrama de Estados
+SOCKS5</a></li>
+<li><a href="#estructura-de-datos-principal" id="toc-estructura-de-datos-principal">10.3 Estructura de Datos
+Principal</a></li>
+<li><a href="#flujo-de-datos" id="toc-flujo-de-datos">10.4 Flujo de
+Datos</a></li>
+<li><a href="#organización-de-módulos" id="toc-organización-de-módulos">10.5 Organización de Módulos</a></li>
+<li><a href="#decisiones-de-diseño" id="toc-decisiones-de-diseño">10.6
+Decisiones de Diseño</a></li>
+</ul></li>
+<li><a href="#referencias" id="toc-referencias">Referencias</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="trabajo-práctico-especial---protocolos-de-comunicación">Trabajo
+Práctico Especial - Protocolos de Comunicación</h1>
+<h2 id="servidor-proxy-socksv5">Servidor Proxy SOCKSv5</h2>
+<p><strong>Materia:</strong> 72.07 - Protocolos de Comunicación<br />
+<strong>Cuatrimestre:</strong> 2C 2025<br />
+<strong>Fecha de Entrega:</strong> Diciembre 2025</p>
+<h3 id="integrantes-del-grupo">Integrantes del Grupo</h3>
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Legajo</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Nombre Alumno 1]</td>
+<td>[Legajo]</td>
+<td>[email@itba.edu.ar]</td>
+</tr>
+<tr>
+<td>Facundo Lasserre</td>
+<td>[Legajo]</td>
+<td>flasserre@itba.edu.ar</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="índice">Índice</h2>
+<ol type="1">
+<li><a href="#1-descripción-de-protocolos-y-aplicaciones">Descripción de
+Protocolos y Aplicaciones</a>
+<ul>
+<li>1.1 <a href="#11-protocolo-socksv5">Protocolo SOCKSv5</a></li>
+<li>1.2 <a href="#12-protocolo-de-autenticación-rfc-1929">Protocolo de
+Autenticación RFC 1929</a></li>
+<li>1.3 <a href="#13-protocolo-de-gestión-y-monitoreo">Protocolo de
+Gestión y Monitoreo</a></li>
+<li>1.4 <a href="#14-aplicación-servidor-socks5d">Aplicación Servidor
+(socks5d)</a></li>
+<li>1.5 <a href="#15-aplicación-cliente-de-gestión-client">Aplicación
+Cliente de Gestión (client)</a></li>
+</ul></li>
+<li><a href="#2-problemas-encontrados">Problemas Encontrados</a></li>
+<li><a href="#3-limitaciones-de-la-aplicación">Limitaciones de la
+Aplicación</a></li>
+<li><a href="#4-posibles-extensiones">Posibles Extensiones</a></li>
+<li><a href="#5-conclusiones">Conclusiones</a></li>
+<li><a href="#6-ejemplos-de-prueba">Ejemplos de Prueba</a></li>
+<li><a href="#7-guía-de-instalación">Guía de Instalación</a></li>
+<li><a href="#8-instrucciones-de-configuración">Instrucciones de
+Configuración</a></li>
+<li><a href="#9-ejemplos-de-configuración-y-monitoreo">Ejemplos de
+Configuración y Monitoreo</a></li>
+<li><a href="#10-documento-de-diseño">Documento de Diseño</a></li>
+</ol>
+<hr />
+<h2 id="descripción-de-protocolos-y-aplicaciones">1. Descripción de
+Protocolos y Aplicaciones</h2>
+<h3 id="protocolo-socksv5">1.1 Protocolo SOCKSv5</h3>
+<p>El servidor implementa el protocolo SOCKS versión 5 según lo
+especificado en RFC 1928. SOCKS (Socket Secure) es un protocolo de
+Internet que permite a los clientes enrutar paquetes de red a través de
+un servidor intermediario (proxy).</p>
+<h4 id="fases-del-protocolo">1.1.1 Fases del Protocolo</h4>
+<p><strong>Fase 1: Negociación de Método de Autenticación
+(Handshake)</strong></p>
+<p>El cliente inicia la conexión enviando un mensaje de saludo:</p>
+<pre><code>+----+----------+----------+
+|VER | NMETHODS | METHODS  |
++----+----------+----------+
+| 1  |    1     | 1 to 255 |
++----+----------+----------+</code></pre>
+<p>Donde: - <code>VER</code>: Versión del protocolo (0x05 para SOCKSv5)
+- <code>NMETHODS</code>: Número de métodos de autenticación soportados -
+<code>METHODS</code>: Lista de métodos de autenticación</p>
+<p>El servidor responde con:</p>
+<pre><code>+----+--------+
+|VER | METHOD |
++----+--------+
+| 1  |   1    |
++----+--------+</code></pre>
+<p>Nuestra implementación soporta: - <code>0x00</code>: Sin
+autenticación (NO SOPORTADO - rechazado) - <code>0x02</code>:
+Autenticación Usuario/Contraseña (OBLIGATORIO) - <code>0xFF</code>: No
+hay método aceptable</p>
+<p><strong>Fase 2: Autenticación (RFC 1929)</strong></p>
+<p>Una vez negociado el método 0x02, se procede a la subnegociación de
+autenticación.</p>
+<p><strong>Fase 3: Solicitud de Conexión (Request)</strong></p>
+<pre><code>+----+-----+-------+------+----------+----------+
+|VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
++----+-----+-------+------+----------+----------+
+| 1  |  1  | X&#39;00&#39; |  1   | Variable |    2     |
++----+-----+-------+------+----------+----------+</code></pre>
+<p>Donde: - <code>CMD</code>: Comando (0x01 = CONNECT, único soportado)
+- <code>ATYP</code>: Tipo de dirección - 0x01: IPv4 (4 bytes) - 0x03:
+FQDN (1 byte longitud + dominio) - 0x04: IPv6 (16 bytes) -
+<code>DST.ADDR</code>: Dirección de destino - <code>DST.PORT</code>:
+Puerto de destino (big-endian)</p>
+<p><strong>Fase 4: Respuesta del Servidor</strong></p>
+<pre><code>+----+-----+-------+------+----------+----------+
+|VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
++----+-----+-------+------+----------+----------+
+| 1  |  1  | X&#39;00&#39; |  1   | Variable |    2     |
++----+-----+-------+------+----------+----------+</code></pre>
+<p>Códigos de respuesta (REP) implementados: - <code>0x00</code>: Éxito
+- <code>0x01</code>: Fallo general del servidor SOCKS -
+<code>0x03</code>: Red no alcanzable - <code>0x04</code>: Host no
+alcanzable - <code>0x05</code>: Conexión rechazada - <code>0x07</code>:
+Comando no soportado - <code>0x08</code>: Tipo de dirección no
+soportado</p>
+<p><strong>Fase 5: Transferencia de Datos</strong></p>
+<p>Una vez establecida la conexión, el proxy actúa como un relay
+bidireccional transparente entre el cliente y el servidor de origen.</p>
+<h3 id="protocolo-de-autenticación-rfc-1929">1.2 Protocolo de
+Autenticación RFC 1929</h3>
+<p>La autenticación Username/Password sigue el estándar RFC 1929.</p>
+<p><strong>Solicitud del Cliente:</strong></p>
+<pre><code>+----+------+----------+------+----------+
+|VER | ULEN |  UNAME   | PLEN |  PASSWD  |
++----+------+----------+------+----------+
+| 1  |  1   | 1 to 255 |  1   | 1 to 255 |
++----+------+----------+------+----------+</code></pre>
+<p>Donde: - <code>VER</code>: Versión de subnegociación (0x01) -
+<code>ULEN</code>: Longitud del nombre de usuario - <code>UNAME</code>:
+Nombre de usuario - <code>PLEN</code>: Longitud de la contraseña -
+<code>PASSWD</code>: Contraseña</p>
+<p><strong>Respuesta del Servidor:</strong></p>
+<pre><code>+----+--------+
+|VER | STATUS |
++----+--------+
+| 1  |   1    |
++----+--------+</code></pre>
+<p>Donde: - <code>VER</code>: 0x01 - <code>STATUS</code>: 0x00 = éxito,
+cualquier otro valor = fallo</p>
+<h3 id="protocolo-de-gestión-y-monitoreo">1.3 Protocolo de Gestión y
+Monitoreo</h3>
+<p>Se diseñó un protocolo de texto simple inspirado en protocolos como
+SMTP y POP3, optimizado para facilidad de uso y depuración.</p>
+<h4 id="especificación-del-protocolo">1.3.1 Especificación del
+Protocolo</h4>
+<p><strong>Características:</strong> - Protocolo basado en texto (ASCII)
+- Orientado a líneas (delimitador: CRLF o LF) - Case-insensitive para
+comandos - Puerto por defecto: 8080 - Conexión TCP persistente</p>
+<p><strong>Formato de Respuestas:</strong></p>
+<pre><code>+OK &lt;mensaje&gt;     # Operación exitosa
+-ERR &lt;mensaje&gt;    # Error en la operación</code></pre>
+<p><strong>Banner de Conexión:</strong></p>
+<p>Al conectarse, el servidor envía:</p>
+<pre><code>+OK SOCKS5 Management Server v1.0
++OK Use AUTH &lt;user&gt; &lt;pass&gt; to authenticate</code></pre>
+<h4 id="comandos-disponibles">1.3.2 Comandos Disponibles</h4>
+<table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Sintaxis</th>
+<th>Descripción</th>
+<th>Requiere Auth</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AUTH</td>
+<td><code>AUTH &lt;user&gt; &lt;pass&gt;</code></td>
+<td>Autenticación del administrador</td>
+<td>No</td>
+</tr>
+<tr>
+<td>STATS</td>
+<td><code>STATS</code></td>
+<td>Muestra métricas del servidor</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>USERS</td>
+<td><code>USERS</code></td>
+<td>Lista usuarios registrados</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>ADDUSER</td>
+<td><code>ADDUSER &lt;user&gt; &lt;pass&gt;</code></td>
+<td>Agrega usuario en runtime</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>DELUSER</td>
+<td><code>DELUSER &lt;user&gt;</code></td>
+<td>Elimina usuario en runtime</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>HELP</td>
+<td><code>HELP</code></td>
+<td>Muestra ayuda de comandos</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td><code>QUIT</code></td>
+<td>Cierra la conexión</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h4 id="detalle-de-comandos">1.3.3 Detalle de Comandos</h4>
+<p><strong>AUTH</strong> - Autenticación</p>
+<pre><code>C: AUTH admin secretpass
+S: +OK Authenticated successfully. Type HELP for commands.</code></pre>
+<p><strong>STATS</strong> - Métricas del Sistema</p>
+<pre><code>C: STATS
+S: +OK Statistics:
+S: +OK   Total connections:    150
+S: +OK   Current connections:  5
+S: +OK   Bytes transferred:    1048576
+S: +OK   Bytes sent:           524288
+S: +OK   Bytes received:       524288
+S: +OK   Successful:           145
+S: +OK   Failed:               5</code></pre>
+<p><strong>USERS</strong> - Listar Usuarios</p>
+<pre><code>C: USERS
+S: +OK Users (3 total):
+S: +OK   USER admin
+S: +OK   USER user1
+S: +OK   USER user2</code></pre>
+<p><strong>ADDUSER</strong> - Agregar Usuario en Runtime</p>
+<pre><code>C: ADDUSER newuser newpass123
+S: +OK User &#39;newuser&#39; added successfully</code></pre>
+<p><strong>DELUSER</strong> - Eliminar Usuario en Runtime</p>
+<pre><code>C: DELUSER olduser
+S: +OK User &#39;olduser&#39; removed successfully</code></pre>
+<h4 id="diagrama-de-estados-del-protocolo">1.3.4 Diagrama de Estados del
+Protocolo</h4>
+<pre><code>                    ┌─────────────────┐
+                    │   CONNECTED     │
+                    │ (Banner enviado)│
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+              ┌────►│   MGMT_AUTH     │◄────┐
+              │     │ (Esperando AUTH)│     │
+              │     └────────┬────────┘     │
+              │              │              │
+              │     AUTH OK  │  AUTH FAIL   │
+              │              ▼              │
+              │     ┌────────────────┐      │
+              │     │   MGMT_CMD     │──────┘
+              │     │(Procesando CMD)│
+              │     └────────┬───────┘
+              │              │
+              │         QUIT │
+              │              ▼
+              │     ┌────────────────┐
+              └─────│   MGMT_DONE    │
+                    │(Cerrar conexión│
+                    └────────────────┘</code></pre>
+<h3 id="aplicación-servidor-socks5d">1.4 Aplicación Servidor
+(socks5d)</h3>
+<p>El servidor <code>socks5d</code> es la aplicación principal que
+implementa: - Proxy SOCKSv5 (RFC 1928) - Autenticación
+Usuario/Contraseña (RFC 1929) - Servidor de Gestión y Monitoreo</p>
+<p><strong>Características Técnicas:</strong> - Arquitectura
+single-threaded con I/O no bloqueante - Multiplexación de conexiones
+mediante <code>select()</code> - Máquinas de estado finitas para manejo
+de protocolos - Soporte para 500+ conexiones simultáneas - DNS asíncrono
+mediante threads auxiliares</p>
+<h3 id="aplicación-cliente-de-gestión-client">1.5 Aplicación Cliente de
+Gestión (client)</h3>
+<p>El cliente <code>client</code> proporciona una interfaz interactiva
+para conectarse al servidor de gestión.</p>
+<p><strong>Características:</strong> - Interfaz de línea de comandos
+interactiva - Conexión TCP al puerto de gestión - Soporte para todos los
+comandos del protocolo</p>
+<hr />
+<h2 id="problemas-encontrados">2. Problemas Encontrados</h2>
+<h3 id="resolución-dns-no-bloqueante">2.1 Resolución DNS No
+Bloqueante</h3>
+<p><strong>Problema:</strong> La función <code>getaddrinfo()</code> de
+POSIX es bloqueante y no existe una versión asíncrona estándar
+portable.</p>
+<p><strong>Solución:</strong> Implementamos un sistema de resolución DNS
+asíncrona utilizando: 1. Un thread auxiliar
+(<code>resolve_thread</code>) que ejecuta <code>getaddrinfo()</code> 2.
+El mecanismo <code>selector_notify_block()</code> del framework provisto
+para notificar al event loop principal cuando la resolución termina</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span> <span class="op">*</span>resolve_thread<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>arg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> resolve_args <span class="op">*</span>args <span class="op">=</span> arg<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... getaddrinfo bloqueante en thread separado ...</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    selector_notify_block<span class="op">(</span>args<span class="op">-&gt;</span>selector<span class="op">,</span> args<span class="op">-&gt;</span>client_fd<span class="op">);</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> NULL<span class="op">;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="conexión-a-múltiples-direcciones-ip">2.2 Conexión a Múltiples
+Direcciones IP</h3>
+<p><strong>Problema:</strong> Cuando un FQDN resuelve a múltiples
+direcciones IP y la primera no está disponible, el cliente no debería
+fallar inmediatamente.</p>
+<p><strong>Solución:</strong> Implementamos un algoritmo de fallback
+que: 1. Obtiene todas las direcciones IP resueltas para un FQDN 2.
+Intenta conectar a cada una secuencialmente 3. Solo reporta error si
+ninguna dirección está disponible</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>current <span class="op">!=</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> origin_fd <span class="op">=</span> socket<span class="op">(</span>current<span class="op">-&gt;</span>ai_family<span class="op">,</span> SOCK_STREAM<span class="op">,</span> IPPROTO_TCP<span class="op">);</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... intentar conexión ...</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>connect<span class="op">(</span>origin_fd<span class="op">,</span> current<span class="op">-&gt;</span>ai_addr<span class="op">,</span> current<span class="op">-&gt;</span>ai_addrlen<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>errno <span class="op">!=</span> EINPROGRESS<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            current <span class="op">=</span> current<span class="op">-&gt;</span>ai_next<span class="op">;</span>  <span class="co">// Intentar siguiente</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Éxito o EINPROGRESS</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="lecturas-y-escrituras-parciales">2.3 Lecturas y Escrituras
+Parciales</h3>
+<p><strong>Problema:</strong> Las operaciones de I/O en sockets no
+bloqueantes pueden completarse parcialmente.</p>
+<p><strong>Solución:</strong> Utilizamos el módulo <code>buffer.c</code>
+provisto por la cátedra que maneja: - Punteros de lectura y escritura
+separados - Compactación automática del buffer - Seguimiento de bytes
+disponibles para lectura/escritura</p>
+<h3 id="manejo-de-conexiones-concurrentes">2.4 Manejo de Conexiones
+Concurrentes</h3>
+<p><strong>Problema:</strong> Gestionar el ciclo de vida de conexiones
+que comparten recursos.</p>
+<p><strong>Solución:</strong> Implementamos un sistema de conteo de
+referencias:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> socks5 <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> references<span class="op">;</span>  <span class="co">// client_fd + origin_fd</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ...</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>La conexión solo se libera cuando <code>references</code> llega a
+0.</p>
+<h3 id="compatibilidad-macos-linux">2.5 Compatibilidad MacOS /
+Linux</h3>
+<p><strong>Problema:</strong> <code>MSG_NOSIGNAL</code> no existe en
+MacOS.</p>
+<p><strong>Solución:</strong> Definimos un fallback:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef MSG_NOSIGNAL</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MSG_NOSIGNAL </span><span class="dv">0</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div>
+<p>Y en MacOS, el manejo de SIGPIPE se hace a nivel de proceso.</p>
+<hr />
+<h2 id="limitaciones-de-la-aplicación">3. Limitaciones de la
+Aplicación</h2>
+<h3 id="limitaciones-funcionales">3.1 Limitaciones Funcionales</h3>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 43%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Limitación</th>
+<th>Descripción</th>
+<th>RFC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Solo CONNECT</td>
+<td>No se soporta BIND ni UDP ASSOCIATE</td>
+<td>RFC 1928</td>
+</tr>
+<tr>
+<td>Sin GSSAPI</td>
+<td>Solo autenticación username/password</td>
+<td>RFC 1929</td>
+</tr>
+<tr>
+<td>Sin cifrado</td>
+<td>El tráfico no está cifrado (usar con túnel TLS)</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Usuarios en memoria</td>
+<td>Los usuarios agregados en runtime se pierden al reiniciar</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Máx. 10 usuarios CLI</td>
+<td>Límite de usuarios en línea de comandos</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="limitaciones-técnicas">3.2 Limitaciones Técnicas</h3>
+<table>
+<thead>
+<tr>
+<th>Limitación</th>
+<th>Valor</th>
+<th>Causa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max conexiones</td>
+<td>~1000</td>
+<td><code>FD_SETSIZE</code> de <code>select()</code></td>
+</tr>
+<tr>
+<td>Buffer por conexión</td>
+<td>8KB</td>
+<td>Definido en <code>BUFFER_SIZE</code></td>
+</tr>
+<tr>
+<td>Longitud FQDN</td>
+<td>255 bytes</td>
+<td>RFC 1928</td>
+</tr>
+<tr>
+<td>Usuario/Pass</td>
+<td>255 bytes cada uno</td>
+<td>RFC 1929</td>
+</tr>
+</tbody>
+</table>
+<h3 id="limitaciones-de-seguridad">3.3 Limitaciones de Seguridad</h3>
+<ul>
+<li><strong>Sin rate limiting:</strong> Un cliente malicioso podría
+saturar el servidor</li>
+<li><strong>Sin blacklist de IPs:</strong> No hay mecanismo para
+bloquear IPs</li>
+<li><strong>Logs en memoria:</strong> El registro de acceso se pierde al
+reiniciar</li>
+<li><strong>Admin password en CLI:</strong> Visible en <code>ps</code> y
+en historial del shell</li>
+</ul>
+<hr />
+<h2 id="posibles-extensiones">4. Posibles Extensiones</h2>
+<h3 id="extensiones-de-corto-plazo">4.1 Extensiones de Corto Plazo</h3>
+<ol type="1">
+<li><strong>Persistencia de usuarios:</strong> Guardar usuarios en
+archivo de configuración</li>
+<li><strong>Logs persistentes:</strong> Escribir logs de acceso a
+archivo con rotación</li>
+<li><strong>Rate limiting:</strong> Limitar conexiones por
+IP/usuario</li>
+<li><strong>Blacklist/Whitelist:</strong> Control de acceso por IP o
+dominio</li>
+</ol>
+<h3 id="extensiones-de-mediano-plazo">4.2 Extensiones de Mediano
+Plazo</h3>
+<ol type="1">
+<li><strong>Soporte epoll/kqueue:</strong> Reemplazar
+<code>select()</code> para mayor escalabilidad</li>
+<li><strong>Pool de threads para DNS:</strong> Múltiples resoluciones
+DNS concurrentes</li>
+<li><strong>Métricas Prometheus:</strong> Endpoint para scraping de
+métricas</li>
+<li><strong>TLS para gestión:</strong> Cifrar el protocolo de
+gestión</li>
+</ol>
+<h3 id="extensiones-de-largo-plazo">4.3 Extensiones de Largo Plazo</h3>
+<ol type="1">
+<li><strong>Clustering:</strong> Múltiples instancias con estado
+compartido</li>
+<li><strong>BIND y UDP ASSOCIATE:</strong> Comandos adicionales de
+SOCKS5</li>
+<li><strong>Autenticación GSSAPI:</strong> Para entornos
+empresariales</li>
+<li><strong>Interfaz Web:</strong> Dashboard para monitoreo y
+gestión</li>
+</ol>
+<hr />
+<h2 id="conclusiones">5. Conclusiones</h2>
+<h3 id="objetivos-cumplidos">5.1 Objetivos Cumplidos</h3>
+<p>El proyecto cumple satisfactoriamente todos los requerimientos
+funcionales de la primera entrega:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requerimiento</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>500+ conexiones concurrentes</td>
+<td>✅ Probado con 1000</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Autenticación RFC 1929</td>
+<td>✅ Implementado</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IPv4, IPv6, FQDN</td>
+<td>✅ Soportados</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Robustez múltiples IPs</td>
+<td>✅ Implementado</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Códigos de error SOCKS</td>
+<td>✅ Completos</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Métricas</td>
+<td>✅ Conexiones y bytes</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Gestión en runtime</td>
+<td>✅ ADDUSER/DELUSER</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Registro de acceso</td>
+<td>✅ Logs por conexión</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aspectos-técnicos-destacables">5.2 Aspectos Técnicos
+Destacables</h3>
+<ol type="1">
+<li><p><strong>Arquitectura no bloqueante correcta:</strong> Todo el I/O
+utiliza el selector provisto por la cátedra, sin llamadas bloqueantes en
+el event loop principal.</p></li>
+<li><p><strong>DNS asíncrono:</strong> La resolución de nombres se
+ejecuta en un thread separado y notifica al selector mediante
+<code>selector_notify_block()</code>.</p></li>
+<li><p><strong>Máquinas de estado claras:</strong> Tanto SOCKS5 como el
+protocolo de gestión utilizan FSM bien definidas con transiciones
+explícitas.</p></li>
+<li><p><strong>Código modular:</strong> Separación clara entre capas
+(buffer, selector, stm, protocolo, aplicación).</p></li>
+</ol>
+<h3 id="lecciones-aprendidas">5.3 Lecciones Aprendidas</h3>
+<ol type="1">
+<li><p><strong>I/O no bloqueante es complejo:</strong> Manejar
+lecturas/escrituras parciales y estados intermedios requiere un diseño
+cuidadoso.</p></li>
+<li><p><strong>Los RFCs son la verdad:</strong> Seguir estrictamente las
+especificaciones evita problemas de interoperabilidad.</p></li>
+<li><p><strong>Testing es fundamental:</strong> Las pruebas de estrés
+revelaron problemas que no eran evidentes en uso normal.</p></li>
+<li><p><strong>La simplicidad es valiosa:</strong> El protocolo de
+gestión basado en texto facilita enormemente la depuración.</p></li>
+</ol>
+<hr />
+<h2 id="ejemplos-de-prueba">6. Ejemplos de Prueba</h2>
+<h3 id="prueba-de-handshake-socks5">6.1 Prueba de Handshake SOCKS5</h3>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> socket</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>s.<span class="ex">connect</span>((<span class="st">&#39;127.0.0.1&#39;</span>, <span class="dv">1080</span>))</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># HELLO: VER=5, NMETHODS=1, METHOD=0x02 (user/pass)</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>s.send(<span class="st">b&#39;</span><span class="ch">\x05\x01\x02</span><span class="st">&#39;</span>)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> s.recv(<span class="dv">2</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Response: </span><span class="sc">{</span>response<span class="sc">.</span><span class="bu">hex</span>()<span class="sc">}</span><span class="ss">&quot;</span>)  <span class="co"># Esperado: 0502</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>s.close()</span></code></pre></div>
+<h3 id="prueba-de-autenticación">6.2 Prueba de Autenticación</h3>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> socket</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>s.<span class="ex">connect</span>((<span class="st">&#39;127.0.0.1&#39;</span>, <span class="dv">1080</span>))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># HELLO</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>s.send(<span class="st">b&#39;</span><span class="ch">\x05\x01\x02</span><span class="st">&#39;</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>s.recv(<span class="dv">2</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># AUTH: VER=1, USER=user1, PASS=pass1</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>user, pwd <span class="op">=</span> <span class="st">b&#39;user1&#39;</span>, <span class="st">b&#39;pass1&#39;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>auth <span class="op">=</span> <span class="bu">bytes</span>([<span class="bn">0x01</span>, <span class="bu">len</span>(user)]) <span class="op">+</span> user <span class="op">+</span> <span class="bu">bytes</span>([<span class="bu">len</span>(pwd)]) <span class="op">+</span> pwd</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>s.send(auth)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> s.recv(<span class="dv">2</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Auth status: </span><span class="sc">{</span>response[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">&quot;</span>)  <span class="co"># 0 = éxito</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>s.close()</span></code></pre></div>
+<h3 id="prueba-de-conexión-completa-con-curl">6.3 Prueba de Conexión
+Completa con curl</h3>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conexión HTTPS a través del proxy</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-x</span> socks5h://user1:pass1@127.0.0.1:1080 https://www.google.com</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar IP pública</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-x</span> socks5h://user1:pass1@127.0.0.1:1080 https://api.ipify.org</span></code></pre></div>
+<h3 id="prueba-del-protocolo-de-gestión">6.4 Prueba del Protocolo de
+Gestión</h3>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Conectar con netcat</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nc</span> 127.0.0.1 8080</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Secuencia de comandos:</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co"># &gt; (Banner automático)</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># AUTH admin admin123</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># STATS</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co"># USERS</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ADDUSER newuser newpass</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co"># USERS</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># DELUSER newuser</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># QUIT</span></span></code></pre></div>
+<h3 id="prueba-de-estrés">6.5 Prueba de Estrés</h3>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> socket</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> threading</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> socks5_handshake():</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        s.settimeout(<span class="dv">5</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        s.<span class="ex">connect</span>((<span class="st">&#39;127.0.0.1&#39;</span>, <span class="dv">1080</span>))</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>        s.send(<span class="st">b&#39;</span><span class="ch">\x05\x01\x02</span><span class="st">&#39;</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>        s.recv(<span class="dv">2</span>)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        s.close()</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span>:</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 500 conexiones concurrentes</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>threads <span class="op">=</span> [threading.Thread(target<span class="op">=</span>socks5_handshake) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">500</span>)]</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>start <span class="op">=</span> time.time()</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> threads: t.start()</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> threads: t.join()</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;500 conexiones en </span><span class="sc">{</span>time<span class="sc">.</span>time() <span class="op">-</span> start<span class="sc">:.2f}</span><span class="ss">s&quot;</span>)</span></code></pre></div>
+<h3 id="resultados-de-pruebas-de-estrés">6.6 Resultados de Pruebas de
+Estrés</h3>
+<table>
+<thead>
+<tr>
+<th>Conexiones</th>
+<th>Exitosas</th>
+<th>Tiempo</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>100/100</td>
+<td>0.01s</td>
+<td>8,678/s</td>
+</tr>
+<tr>
+<td>500</td>
+<td>500/500</td>
+<td>0.07s</td>
+<td>7,590/s</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>1000/1000</td>
+<td>0.12s</td>
+<td>8,135/s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Límite observado:</strong> ~1,018 conexiones (límite de
+<code>FD_SETSIZE</code>)</p>
+<hr />
+<h2 id="guía-de-instalación">7. Guía de Instalación</h2>
+<h3 id="requisitos-previos">7.1 Requisitos Previos</h3>
+<p><strong>Sistema Operativo:</strong> - Linux (probado en Ubuntu
+20.04+) - macOS (probado en Ventura+)</p>
+<p><strong>Dependencias:</strong> - GCC con soporte C11 - GNU Make -
+pthread library (incluida en sistemas POSIX)</p>
+<p><strong>Verificar dependencias:</strong></p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gcc</span> <span class="at">--version</span>    <span class="co"># Requiere GCC 4.9+ o Clang 3.3+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> <span class="at">--version</span>   <span class="co"># GNU Make 3.81+</span></span></code></pre></div>
+<h3 id="compilación">7.2 Compilación</h3>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Clonar el repositorio (o extraer el tarball)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone <span class="op">&lt;</span>url-repositorio<span class="op">&gt;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> tpe-protos</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compilar</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar binarios generados</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> socks5d client</span></code></pre></div>
+<p><strong>Binarios generados:</strong> - <code>socks5d</code>: Servidor
+proxy SOCKS5 (~100KB) - <code>client</code>: Cliente de gestión
+(~60KB)</p>
+<h3 id="verificación-de-instalación">7.3 Verificación de
+Instalación</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar que el servidor muestra ayuda</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-h</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar versión</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-v</span></span></code></pre></div>
+<h3 id="limpieza">7.4 Limpieza</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Eliminar archivos compilados</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> clean</span></code></pre></div>
+<hr />
+<h2 id="instrucciones-de-configuración">8. Instrucciones de
+Configuración</h2>
+<h3 id="argumentos-de-línea-de-comandos">8.1 Argumentos de Línea de
+Comandos</h3>
+<h4 id="servidor-socks5d">Servidor (socks5d)</h4>
+<table>
+<thead>
+<tr>
+<th>Argumento</th>
+<th>Descripción</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-h</code></td>
+<td>Muestra ayuda y termina</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>Muestra versión y termina</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>-l &lt;addr&gt;</code></td>
+<td>Dirección para SOCKS</td>
+<td>0.0.0.0</td>
+</tr>
+<tr>
+<td><code>-p &lt;port&gt;</code></td>
+<td>Puerto para SOCKS</td>
+<td>1080</td>
+</tr>
+<tr>
+<td><code>-L &lt;addr&gt;</code></td>
+<td>Dirección para gestión</td>
+<td>127.0.0.1</td>
+</tr>
+<tr>
+<td><code>-P &lt;port&gt;</code></td>
+<td>Puerto para gestión</td>
+<td>8080</td>
+</tr>
+<tr>
+<td><code>-u &lt;user:pass&gt;</code></td>
+<td>Agregar usuario (hasta 10)</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>-N</code></td>
+<td>Desactivar disectores</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cliente-client">Cliente (client)</h4>
+<table>
+<thead>
+<tr>
+<th>Argumento</th>
+<th>Descripción</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-h</code></td>
+<td>Muestra ayuda</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>-a &lt;addr&gt;</code></td>
+<td>Dirección del servidor</td>
+<td>127.0.0.1</td>
+</tr>
+<tr>
+<td><code>-p &lt;port&gt;</code></td>
+<td>Puerto de gestión</td>
+<td>8080</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ejemplos-de-configuración">8.2 Ejemplos de Configuración</h3>
+<p><strong>Configuración mínima (un usuario):</strong></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-u</span> admin:secretpass</span></code></pre></div>
+<p><strong>Configuración con múltiples usuarios:</strong></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-u</span> admin:adminpass <span class="at">-u</span> user1:pass1 <span class="at">-u</span> user2:pass2</span></code></pre></div>
+<p><strong>Configuración en puertos personalizados:</strong></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-p</span> 9050 <span class="at">-P</span> 9051 <span class="at">-u</span> admin:pass</span></code></pre></div>
+<p><strong>Solo aceptar gestión desde localhost:</strong></p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-L</span> 127.0.0.1 <span class="at">-u</span> admin:pass</span></code></pre></div>
+<p><strong>Aceptar SOCKS desde cualquier interfaz:</strong></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-l</span> 0.0.0.0 <span class="at">-u</span> admin:pass</span></code></pre></div>
+<h3 id="ejecución-como-servicio">8.3 Ejecución como Servicio</h3>
+<p><strong>Ejemplo con systemd (Linux):</strong></p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode ini"><code class="sourceCode ini"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># /etc/systemd/system/socks5d.service</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="kw">[Unit]</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="dt">Description</span><span class="ot">=</span><span class="st">SOCKS5 Proxy Server</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="dt">After</span><span class="ot">=</span><span class="st">network.target</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[Service]</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="dt">Type</span><span class="ot">=</span><span class="st">simple</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="dt">ExecStart</span><span class="ot">=</span><span class="st">/opt/socks5d/socks5d -u admin:secretpass</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="dt">Restart</span><span class="ot">=</span><span class="st">always</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="kw">[Install]</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="dt">WantedBy</span><span class="ot">=</span><span class="st">multi-user.target</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable socks5d</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl start socks5d</span></code></pre></div>
+<hr />
+<h2 id="ejemplos-de-configuración-y-monitoreo">9. Ejemplos de
+Configuración y Monitoreo</h2>
+<h3 id="iniciar-el-servidor">9.1 Iniciar el Servidor</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Iniciar con configuración básica</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./socks5d</span> <span class="at">-u</span> admin:admin123 <span class="at">-u</span> user1:pass1</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Salida esperada:</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO] User added: admin</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO] User added: user1</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO] SOCKS5 server listening on 0.0.0.0:1080</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO] Management server listening on 127.0.0.1:8080</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># [INFO] Server started successfully. Waiting for connections...</span></span></code></pre></div>
+<h3 id="conectar-con-cliente-de-gestión">9.2 Conectar con Cliente de
+Gestión</h3>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./client</span> <span class="at">-a</span> 127.0.0.1 <span class="at">-p</span> 8080</span></code></pre></div>
+<h3 id="sesión-de-monitoreo-completa">9.3 Sesión de Monitoreo
+Completa</h3>
+<pre><code>$ nc 127.0.0.1 8080
++OK SOCKS5 Management Server v1.0
++OK Use AUTH &lt;user&gt; &lt;pass&gt; to authenticate
+
+AUTH admin admin123
++OK Authenticated successfully. Type HELP for commands.
+
+HELP
++OK Available commands:
++OK   STATS   - Show server statistics
++OK   USERS   - List registered users
++OK   ADDUSER &lt;user&gt; &lt;pass&gt; - Add a new user
++OK   DELUSER &lt;user&gt; - Remove a user
++OK   HELP    - Show this help
++OK   QUIT    - Close connection
+
+STATS
++OK Statistics:
++OK   Total connections:    25
++OK   Current connections:  3
++OK   Bytes transferred:    152847
++OK   Bytes sent:           76423
++OK   Bytes received:       76424
++OK   Successful:           23
++OK   Failed:               2
+
+USERS
++OK Users (2 total):
++OK   USER admin
++OK   USER user1
+
+ADDUSER guest guest123
++OK User &#39;guest&#39; added successfully
+
+USERS
++OK Users (3 total):
++OK   USER admin
++OK   USER user1
++OK   USER guest
+
+DELUSER guest
++OK User &#39;guest&#39; removed successfully
+
+QUIT
++OK Bye</code></pre>
+<h3 id="monitoreo-de-logs-de-acceso">9.4 Monitoreo de Logs de
+Acceso</h3>
+<p>Los logs de acceso se imprimen en stdout con el formato:</p>
+<pre><code>[timestamp] ACCESS &lt;usuario&gt;@&lt;ip_cliente&gt;:&lt;puerto&gt; -&gt; &lt;destino&gt;:&lt;puerto&gt; &lt;estado&gt; &lt;bytes_recv&gt;/&lt;bytes_sent&gt;</code></pre>
+<p><strong>Ejemplo:</strong></p>
+<pre><code>[2025-12-10 15:30:45] ACCESS user1@192.168.1.100:54321 -&gt; www.google.com:443 OK 15234/892
+[2025-12-10 15:30:50] ACCESS user2@192.168.1.101:54322 -&gt; api.example.com:80 OK 4521/156
+[2025-12-10 15:31:02] ACCESS baduser@192.168.1.102:54323 -&gt; -:0 ERROR 0/0</code></pre>
+<h3 id="configuración-de-navegador-firefox">9.5 Configuración de
+Navegador (Firefox)</h3>
+<ol type="1">
+<li>Ir a <code>about:preferences</code></li>
+<li>Buscar “proxy” en el buscador</li>
+<li>Click en “Settings…”</li>
+<li>Seleccionar “Manual proxy configuration”</li>
+<li>En “SOCKS Host”: <code>127.0.0.1</code></li>
+<li>En “Port”: <code>1080</code></li>
+<li>Seleccionar “SOCKS v5”</li>
+<li>Marcar “Proxy DNS when using SOCKS v5”</li>
+<li>Click “OK”</li>
+</ol>
+<p>Al navegar, Firefox solicitará las credenciales de
+usuario/contraseña.</p>
+<hr />
+<h2 id="documento-de-diseño">10. Documento de Diseño</h2>
+<h3 id="arquitectura-general">10.1 Arquitectura General</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────┐
+│                           socks5d                                   │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────────┐ │
+│  │   main.c    │───►│  selector.c │───►│     Event Loop          │ │
+│  │  (Startup)  │    │ (Multiplex) │    │  ┌─────┐ ┌─────┐ ┌────┐ │ │
+│  └─────────────┘    └─────────────┘    │  │FD 1 │ │FD 2 │ │... │ │ │
+│                                         │  └──┬──┘ └──┬──┘ └─┬──┘ │ │
+│  ┌─────────────┐    ┌─────────────┐    │     │       │      │    │ │
+│  │   args.c    │    │    stm.c    │    └─────┼───────┼──────┼────┘ │
+│  │  (Config)   │    │    (FSM)    │          │       │      │      │
+│  └─────────────┘    └─────────────┘          ▼       ▼      ▼      │
+│                                         ┌────────────────────────┐ │
+│  ┌─────────────┐    ┌─────────────┐    │     Connection Pool    │ │
+│  │  logger.c   │    │  buffer.c   │    │  ┌──────┐  ┌──────┐   │ │
+│  │   (Logs)    │    │  (I/O Buf)  │    │  │SOCKS5│  │ MGMT │   │ │
+│  └─────────────┘    └─────────────┘    │  └──────┘  └──────┘   │ │
+│                                         └────────────────────────┘ │
+│  ┌─────────────┐    ┌─────────────┐                                │
+│  │  users.c    │    │  metrics.c  │    ┌────────────────────────┐ │
+│  │ (User Mgmt) │    │ (Counters)  │    │   DNS Resolver Thread  │ │
+│  └─────────────┘    └─────────────┘    └────────────────────────┘ │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="diagrama-de-estados-socks5">10.2 Diagrama de Estados SOCKS5</h3>
+<pre><code>                          ┌──────────────────┐
+                          │   HELLO_READ     │
+                          │ (Lee VER+METHODS)│
+                          └────────┬─────────┘
+                                   │
+                          ┌────────▼─────────┐
+                          │   HELLO_WRITE    │
+                          │(Envia VER+METHOD)│
+                          └────────┬─────────┘
+                                   │
+                          ┌────────▼─────────┐
+                          │    AUTH_READ     │
+                          │ (Lee USER+PASS)  │
+                          └────────┬─────────┘
+                                   │
+                    ┌──────────────┴──────────────┐
+                    │                             │
+           AUTH OK  │                             │ AUTH FAIL
+                    ▼                             ▼
+           ┌────────────────┐            ┌────────────────┐
+           │   AUTH_WRITE   │            │     ERROR      │
+           │  (Envía 0x00)  │            │  (Envía 0x01)  │
+           └────────┬───────┘            └────────────────┘
+                    │
+           ┌────────▼────────┐
+           │  REQUEST_READ   │
+           │(Lee CMD+ADDR+PT)│
+           └────────┬────────┘
+                    │
+         ┌──────────┴──────────┐
+         │                     │
+    FQDN │                     │ IPv4/IPv6
+         ▼                     ▼
+┌─────────────────┐   ┌─────────────────┐
+│REQUEST_RESOLVING│   │REQUEST_CONNECTING│
+│  (Thread DNS)   │   │(Connect directo)│
+└────────┬────────┘   └────────┬────────┘
+         │                     │
+         └──────────┬──────────┘
+                    │
+         ┌──────────▼──────────┐
+         │   REQUEST_WRITE     │
+         │ (Envía respuesta)   │
+         └──────────┬──────────┘
+                    │
+         ┌──────────▼──────────┐
+         │       COPY          │
+         │ (Relay bidirecc.)   │
+         └──────────┬──────────┘
+                    │
+         ┌──────────▼──────────┐
+         │       DONE          │
+         │ (Cleanup + Close)   │
+         └─────────────────────┘</code></pre>
+<h3 id="estructura-de-datos-principal">10.3 Estructura de Datos
+Principal</h3>
+<div class="sourceCode" id="cb42"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> socks5 <span class="op">{</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// File descriptors</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> client_fd<span class="op">;</span>          <span class="co">// Socket del cliente SOCKS</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> origin_fd<span class="op">;</span>          <span class="co">// Socket al servidor de origen</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Conteo de referencias</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> references<span class="op">;</span>         <span class="co">// Cuántos FDs referencian esta estructura</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Máquina de estados</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> state_machine stm<span class="op">;</span></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Buffers de I/O</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> raw_buff_read<span class="op">[</span>BUFFER_SIZE<span class="op">];</span></span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> raw_buff_write<span class="op">[</span>BUFFER_SIZE<span class="op">];</span></span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>    buffer read_buffer<span class="op">;</span></span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>    buffer write_buffer<span class="op">;</span></span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Estado de cada dirección (cliente y origen)</span></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> hello_st hello<span class="op">;</span>      <span class="co">// Estado HELLO</span></span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> auth_st auth<span class="op">;</span>        <span class="co">// Estado AUTH</span></span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> request_st request<span class="op">;</span>  <span class="co">// Estado REQUEST</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> copy_st copy<span class="op">;</span>        <span class="co">// Estado COPY</span></span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> client<span class="op">;</span></span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Resolución DNS</span></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> addrinfo <span class="op">*</span>origin_resolution<span class="op">;</span></span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> addrinfo <span class="op">*</span>origin_resolution_current<span class="op">;</span></span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Metadatos para logging</span></span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> username<span class="op">[</span><span class="dv">256</span><span class="op">];</span></span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> target_host<span class="op">[</span><span class="dv">256</span><span class="op">];</span></span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> target_port<span class="op">;</span></span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint64_t</span> bytes_sent<span class="op">;</span></span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint64_t</span> bytes_received<span class="op">;</span></span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Referencia al selector</span></span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>    fd_selector selector<span class="op">;</span></span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="flujo-de-datos">10.4 Flujo de Datos</h3>
+<pre><code>┌────────┐                    ┌──────────┐                    ┌────────┐
+│ Cliente│                    │  Proxy   │                    │ Origen │
+│ SOCKS5 │                    │ socks5d  │                    │ Server │
+└───┬────┘                    └────┬─────┘                    └───┬────┘
+    │                              │                              │
+    │ 1. HELLO (VER, METHODS)      │                              │
+    │─────────────────────────────►│                              │
+    │                              │                              │
+    │ 2. HELLO Response (VER, 0x02)│                              │
+    │◄─────────────────────────────│                              │
+    │                              │                              │
+    │ 3. AUTH (VER, USER, PASS)    │                              │
+    │─────────────────────────────►│                              │
+    │                              │ (Validar credenciales)       │
+    │ 4. AUTH Response (VER, 0x00) │                              │
+    │◄─────────────────────────────│                              │
+    │                              │                              │
+    │ 5. REQUEST (CONNECT, ADDR)   │                              │
+    │─────────────────────────────►│                              │
+    │                              │ 6. DNS Lookup (si FQDN)      │
+    │                              │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─►       │
+    │                              │                              │
+    │                              │ 7. TCP Connect               │
+    │                              │─────────────────────────────►│
+    │                              │                              │
+    │                              │ 8. Connect OK                │
+    │                              │◄─────────────────────────────│
+    │                              │                              │
+    │ 9. REPLY (SUCCEEDED)         │                              │
+    │◄─────────────────────────────│                              │
+    │                              │                              │
+    │ 10. Data                     │ 11. Data                     │
+    │─────────────────────────────►│─────────────────────────────►│
+    │                              │                              │
+    │                              │ 12. Data                     │
+    │ 13. Data                     │◄─────────────────────────────│
+    │◄─────────────────────────────│                              │
+    │                              │                              │
+    ▼                              ▼                              ▼</code></pre>
+<h3 id="organización-de-módulos">10.5 Organización de Módulos</h3>
+<pre><code>tpe-protos/
+├── include/                    # Headers públicos
+│   ├── args.h                  # Argumentos de línea de comandos
+│   ├── buffer.h                # Buffer de I/O (cátedra)
+│   ├── logger.h                # Sistema de logging
+│   ├── metrics.h               # Métricas del servidor
+│   ├── mgmt.h                  # Protocolo de gestión
+│   ├── netutils.h              # Utilidades de red (cátedra)
+│   ├── parser.h                # Parser genérico (cátedra)
+│   ├── selector.h              # Multiplexor I/O (cátedra)
+│   ├── socks5nio.h             # Protocolo SOCKS5
+│   ├── stm.h                   # Máquina de estados (cátedra)
+│   └── users.h                 # Gestión de usuarios
+│
+├── src/
+│   ├── lib/                    # Framework de la cátedra
+│   │   ├── buffer.c
+│   │   ├── netutils.c
+│   │   ├── parser.c
+│   │   ├── selector.c
+│   │   └── stm.c
+│   │
+│   ├── server/                 # Servidor SOCKS5
+│   │   ├── main.c              # Punto de entrada
+│   │   ├── args.c              # Parsing de argumentos
+│   │   ├── logger.c            # Logging
+│   │   ├── metrics.c           # Contadores atómicos
+│   │   ├── mgmt.c              # Servidor de gestión
+│   │   ├── socks5nio.c         # Implementación SOCKS5
+│   │   └── users.c             # Gestión de usuarios
+│   │
+│   └── client/                 # Cliente de gestión
+│       └── main.c
+│
+├── docs/                       # Documentación
+│   ├── consigna.txt            # Enunciado del TP
+│   ├── informe.md              # Este documento
+│   ├── stress_report.md        # Informe de pruebas de estrés
+│   └── stress_test.py          # Script de pruebas
+│
+├── patches/                    # Framework original (patches)
+│
+├── Makefile                    # Sistema de build
+├── README.md                   # Documentación rápida
+└── .gitignore                  # Archivos ignorados</code></pre>
+<h3 id="decisiones-de-diseño">10.6 Decisiones de Diseño</h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Decisión</th>
+<th>Justificación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiplexor</td>
+<td><code>select()</code></td>
+<td>Provisto por la cátedra, portable</td>
+</tr>
+<tr>
+<td>Threading</td>
+<td>Single-thread + DNS auxiliar</td>
+<td>Evita race conditions</td>
+</tr>
+<tr>
+<td>Buffers</td>
+<td>8KB por dirección</td>
+<td>Balance memoria/rendimiento</td>
+</tr>
+<tr>
+<td>Protocolo gestión</td>
+<td>Texto plano</td>
+<td>Facilidad de depuración</td>
+</tr>
+<tr>
+<td>Logs</td>
+<td>stdout</td>
+<td>Simplicidad, permite redirección</td>
+</tr>
+<tr>
+<td>Métricas</td>
+<td>Atómicas</td>
+<td>Thread-safe para DNS thread</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="referencias">Referencias</h2>
+<ul>
+<li>RFC 1928 - SOCKS Protocol Version 5</li>
+<li>RFC 1929 - Username/Password Authentication for SOCKS V5</li>
+<li>RFC 2119 - Key words for use in RFCs</li>
+<li>IEEE Std 1003.1-2008 - POSIX Base Specifications</li>
+<li>ISO/IEC 9899:2011 - C11 Standard</li>
+</ul>
+<hr />
+<p><em>Documento generado para el Trabajo Práctico Especial de
+Protocolos de Comunicación - 2C 2025</em></p>
+</body>
+</html>
