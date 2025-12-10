@@ -898,7 +898,7 @@ struct resolve_args {
     int client_fd;
     char host[256];
     uint16_t port;
-    struct addrinfo *result;
+    struct socks5 *s;  // Puntero a la estructura para guardar el resultado
 };
 
 static void *
@@ -913,13 +913,19 @@ resolve_thread(void *arg) {
     char port_str[8];
     snprintf(port_str, sizeof(port_str), "%d", args->port);
     
-    int status = getaddrinfo(args->host, port_str, &hints, &args->result);
+    struct addrinfo *result = NULL;
+    int status = getaddrinfo(args->host, port_str, &hints, &result);
     if (status != 0) {
         LOG_WARN("DNS resolution failed for %s: %s", args->host, gai_strerror(status));
-        args->result = NULL;
+        result = NULL;
     }
     
-    // Notificar al selector
+    // Guardar resultado en la estructura socks5 (acceso thread-safe por diseño:
+    // el selector no procesa este fd mientras está en estado BLOCK)
+    args->s->origin_resolution = result;
+    args->s->origin_resolution_current = result;
+    
+    // Notificar al selector que terminamos
     selector_notify_block(args->selector, args->client_fd);
     
     free(args);
@@ -932,6 +938,13 @@ request_resolving_init(unsigned state, struct selector_key *key) {
     struct socks5 *s = ATTACHMENT(key);
     struct request_st *d = &s->client.request;
     
+    // Limpiar resolución anterior si existe
+    if (s->origin_resolution != NULL) {
+        freeaddrinfo(s->origin_resolution);
+        s->origin_resolution = NULL;
+        s->origin_resolution_current = NULL;
+    }
+    
     struct resolve_args *args = malloc(sizeof(*args));
     if (args == NULL) {
         d->reply = SOCKS_REPLY_GENERAL_FAILURE;
@@ -941,8 +954,9 @@ request_resolving_init(unsigned state, struct selector_key *key) {
     args->selector = key->s;
     args->client_fd = key->fd;
     strncpy(args->host, d->dest_addr.fqdn, sizeof(args->host) - 1);
+    args->host[sizeof(args->host) - 1] = '\0';
     args->port = d->dest_port;
-    args->result = NULL;
+    args->s = s;  // Puntero para que el thread guarde el resultado
     
     pthread_t tid;
     if (pthread_create(&tid, NULL, resolve_thread, args) != 0) {
@@ -951,6 +965,8 @@ request_resolving_init(unsigned state, struct selector_key *key) {
         return;
     }
     pthread_detach(tid);
+    
+    LOG_DEBUG("DNS resolution started for %s in separate thread (non-blocking)", args->host);
 }
 
 static unsigned
@@ -1029,66 +1045,141 @@ try_connect_to_origin(struct socks5 *s, struct selector_key *key) {
     return false;
 }
 
+/**
+ * Inicia la conexión al servidor de origen.
+ * 
+ * Dos casos:
+ * 1. FQDN: Viene desde REQUEST_RESOLVING, ya tiene s->origin_resolution del thread
+ * 2. IPv4/IPv6: Conexión directa sin DNS lookup (NO BLOQUEANTE)
+ */
 static void
 request_connecting_init(unsigned state, struct selector_key *key) {
     (void)state;
     struct socks5 *s = ATTACHMENT(key);
     struct request_st *d = &s->client.request;
     
-    // Liberar resolución anterior si existe
+    // CASO 1: Viene de RESOLVING (FQDN) - ya tiene resolución del thread
     if (s->origin_resolution != NULL) {
-        freeaddrinfo(s->origin_resolution);
-        s->origin_resolution = NULL;
+        LOG_DEBUG("Connecting to %s:%d using resolved addresses (from DNS thread)", 
+                  s->target_host, d->dest_port);
+        
+        // Usar try_connect_to_origin que itera sobre las direcciones resueltas
+        if (!try_connect_to_origin(s, key)) {
+            // Error preparado, ir a escribir respuesta
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Quitar interés del cliente mientras conectamos
+        selector_set_interest(key->s, s->client_fd, OP_NOOP);
+        return;
     }
     
-    // Preparar hints para getaddrinfo
-    struct addrinfo hints = {
-        .ai_family   = AF_UNSPEC,  // IPv4 o IPv6
-        .ai_socktype = SOCK_STREAM,
-        .ai_protocol = IPPROTO_TCP,
-    };
-    
-    char port_str[8];
-    snprintf(port_str, sizeof(port_str), "%d", d->dest_port);
-    
-    // Determinar qué resolver
-    const char *host = NULL;
-    char ip_str[INET6_ADDRSTRLEN];
+    // CASO 2: IPv4/IPv6 directo - crear sockaddr sin getaddrinfo (NO BLOQUEANTE)
+    int origin_fd = -1;
     
     if (d->atyp == SOCKS_ATYP_IPV4) {
-        inet_ntop(AF_INET, &d->dest_addr.ipv4, ip_str, sizeof(ip_str));
-        host = ip_str;
-        hints.ai_family = AF_INET;
+        // Crear socket IPv4
+        origin_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (origin_fd < 0) {
+            LOG_WARN("Failed to create IPv4 socket: %s", strerror(errno));
+            d->reply = SOCKS_REPLY_GENERAL_FAILURE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Setear no bloqueante ANTES de connect
+        if (selector_fd_set_nio(origin_fd) < 0) {
+            LOG_WARN("Failed to set socket non-blocking: %s", strerror(errno));
+            close(origin_fd);
+            d->reply = SOCKS_REPLY_GENERAL_FAILURE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Construir sockaddr_in directamente (NO usa getaddrinfo = NO BLOQUEANTE)
+        struct sockaddr_in addr4;
+        memset(&addr4, 0, sizeof(addr4));
+        addr4.sin_family = AF_INET;
+        addr4.sin_port = htons(d->dest_port);
+        memcpy(&addr4.sin_addr, &d->dest_addr.ipv4, sizeof(addr4.sin_addr));
+        
+        // Iniciar conexión no bloqueante
+        int ret = connect(origin_fd, (struct sockaddr *)&addr4, sizeof(addr4));
+        if (ret < 0 && errno != EINPROGRESS) {
+            LOG_DEBUG("Connect to IPv4 failed: %s", strerror(errno));
+            close(origin_fd);
+            d->reply = SOCKS_REPLY_HOST_UNREACHABLE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Guardar dirección para la respuesta
+        memcpy(&d->origin_addr, &addr4, sizeof(addr4));
+        d->origin_addr_len = sizeof(addr4);
+        
     } else if (d->atyp == SOCKS_ATYP_IPV6) {
-        inet_ntop(AF_INET6, &d->dest_addr.ipv6, ip_str, sizeof(ip_str));
-        host = ip_str;
-        hints.ai_family = AF_INET6;
+        // Crear socket IPv6
+        origin_fd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+        if (origin_fd < 0) {
+            LOG_WARN("Failed to create IPv6 socket: %s", strerror(errno));
+            d->reply = SOCKS_REPLY_GENERAL_FAILURE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Setear no bloqueante ANTES de connect
+        if (selector_fd_set_nio(origin_fd) < 0) {
+            LOG_WARN("Failed to set socket non-blocking: %s", strerror(errno));
+            close(origin_fd);
+            d->reply = SOCKS_REPLY_GENERAL_FAILURE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Construir sockaddr_in6 directamente (NO usa getaddrinfo = NO BLOQUEANTE)
+        struct sockaddr_in6 addr6;
+        memset(&addr6, 0, sizeof(addr6));
+        addr6.sin6_family = AF_INET6;
+        addr6.sin6_port = htons(d->dest_port);
+        memcpy(&addr6.sin6_addr, &d->dest_addr.ipv6, sizeof(addr6.sin6_addr));
+        
+        // Iniciar conexión no bloqueante
+        int ret = connect(origin_fd, (struct sockaddr *)&addr6, sizeof(addr6));
+        if (ret < 0 && errno != EINPROGRESS) {
+            LOG_DEBUG("Connect to IPv6 failed: %s", strerror(errno));
+            close(origin_fd);
+            d->reply = SOCKS_REPLY_HOST_UNREACHABLE;
+            selector_set_interest(key->s, s->client_fd, OP_WRITE);
+            return;
+        }
+        
+        // Guardar dirección para la respuesta
+        memcpy(&d->origin_addr, &addr6, sizeof(addr6));
+        d->origin_addr_len = sizeof(addr6);
+        
     } else {
-        // FQDN
-        host = d->dest_addr.fqdn;
-    }
-    
-    // Resolver todas las direcciones (para robustez)
-    int status = getaddrinfo(host, port_str, &hints, &s->origin_resolution);
-    if (status != 0 || s->origin_resolution == NULL) {
-        LOG_DEBUG("DNS resolution failed for %s: %s", host, gai_strerror(status));
-        d->reply = SOCKS_REPLY_HOST_UNREACHABLE;
+        // FQDN sin resolución previa = error (debería haber ido por RESOLVING)
+        LOG_ERROR("FQDN without DNS resolution - this should not happen");
+        d->reply = SOCKS_REPLY_GENERAL_FAILURE;
         selector_set_interest(key->s, s->client_fd, OP_WRITE);
         return;
     }
     
-    // Contar direcciones resueltas (para logging)
-    int addr_count = 0;
-    for (struct addrinfo *p = s->origin_resolution; p != NULL; p = p->ai_next) {
-        addr_count++;
-    }
-    LOG_DEBUG("Resolved %s to %d addresses", host, addr_count);
+    LOG_DEBUG("Connecting to %s:%d (direct IP, non-blocking)", s->target_host, d->dest_port);
     
-    s->origin_resolution_current = s->origin_resolution;
+    // Conexión iniciada exitosamente
+    s->origin_fd = origin_fd;
+    s->origin_resolution_current = NULL;  // No hay más direcciones para reintentar
     
-    // Intentar conectar
-    if (!try_connect_to_origin(s, key)) {
-        // Error preparado, ir a escribir respuesta
+    // Registrar el fd del origen para escribir (esperar conexión)
+    s->references++;
+    if (selector_register(key->s, origin_fd, &socks5_handler, OP_WRITE, s) != SELECTOR_SUCCESS) {
+        LOG_ERROR("Failed to register origin socket");
+        close(origin_fd);
+        s->origin_fd = -1;
+        s->references--;
+        d->reply = SOCKS_REPLY_GENERAL_FAILURE;
         selector_set_interest(key->s, s->client_fd, OP_WRITE);
         return;
     }
