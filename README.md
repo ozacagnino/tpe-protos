@@ -98,7 +98,7 @@ make --version
 
 ```bash
 # 1. Clonar el repositorio (o extraer el tarball de entrega)
-git clone <url-del-repositorio>
+git clone https://github.com/ozacagnino/tpe-protos.git
 cd tpe-protos
 
 # 2. Compilar ambos ejecutables
