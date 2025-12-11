@@ -2,14 +2,14 @@ RESULTADOS PRUEBAS DE ESTRÉS
 ==================================================
 
 1. CONEXIONES SIMULTÁNEAS
-   10 conexiones: 10 éxito, 0 fallo, 93.6/s
-   50 conexiones: 50 éxito, 0 fallo, 437.8/s
-   100 conexiones: 100 éxito, 0 fallo, 784.6/s
-   200 conexiones: 200 éxito, 0 fallo, 1369.8/s
-   500 conexiones: 500 éxito, 0 fallo, 2630.9/s
-   750 conexiones: 750 éxito, 0 fallo, 3400.2/s
-   1000 conexiones: 1000 éxito, 0 fallo, 3887.0/s
+   10 conexiones: 10 éxito, 0 fallo, 93.8/s
+   50 conexiones: 50 éxito, 0 fallo, 433.4/s
+   100 conexiones: 100 éxito, 0 fallo, 855.7/s
+   200 conexiones: 200 éxito, 0 fallo, 1438.2/s
+   500 conexiones: 500 éxito, 0 fallo, 2809.3/s
+   750 conexiones: 750 éxito, 0 fallo, 3571.3/s
+   1000 conexiones: 1000 éxito, 0 fallo, 3894.3/s
 
-2. THROUGHPUT SOSTENIDO: 486.8 conn/s
+2. THROUGHPUT SOSTENIDO: 482.2 conn/s
 
 3. MÁXIMO ALCANZADO: 1000 conexiones simultáneas

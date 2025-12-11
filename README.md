@@ -229,17 +229,22 @@ $ ./socks5d -u admin:admin123 -u user1:pass1
 | Opción | Argumento | Descripción | Valor por Defecto |
 |--------|-----------|-------------|-------------------|
 | `-h` | - | Muestra ayuda | - |
-| `-a` | `<dirección>` | Dirección del servidor | `127.0.0.1` |
-| `-p` | `<puerto>` | Puerto de gestión | `8080` |
+| `-L` | `<dirección>` | Dirección del servidor de gestión | `127.0.0.1` |
+| `-P` | `<puerto>` | Puerto del servidor de gestión | `8080` |
+| `-u` | `<usuario>` | Usuario administrador | `admin` |
+| `-p` | `<password>` | Contraseña del administrador | `admin123` |
 
 ### Ejemplos de Ejecución
 
 ```bash
-# Conectar a servidor local
+# Conectar a servidor local (usa defaults)
 ./client
 
-# Conectar a servidor remoto
-./client -a 192.168.1.100 -p 8080
+# Conectar a servidor remoto (IP ficticia no hay nada escuchando ahi)
+./client -L 192.168.1.100 -P 8080
+
+# Conectar con credenciales específicas
+./client -u admin -p secretpass
 
 # Ver ayuda
 ./client -h
@@ -253,43 +258,29 @@ $ ./socks5d -u admin:admin123 -u user1:pass1
 
 ```bash
 # Conexión HTTP a través del proxy
-curl -x socks5h://admin:admin123@127.0.0.1:1080 http://example.com
+curl -x socks5h://usuario1:password1@127.0.0.1:1080 http://example.com
 
 # Conexión HTTPS a través del proxy
-curl -x socks5h://admin:admin123@127.0.0.1:1080 https://www.google.com
+curl -x socks5h://usuario1:password1@127.0.0.1:1080 https://www.google.com
 
 # Verificar IP pública
-curl -x socks5h://admin:admin123@127.0.0.1:1080 https://api.ipify.org
+curl -x socks5h://usuario1:password1@127.0.0.1:1080 https://api.ipify.org
 
 # Descargar archivo
-curl -x socks5h://admin:admin123@127.0.0.1:1080 -O https://example.com/file.zip
+curl -x socks5h://usuario1:password1@127.0.0.1:1080 -O https://example.com/file.zip
 ```
 
-> **Nota:** `socks5h://` indica que la resolución DNS debe realizarla el proxy.
-
-### Uso con Firefox
-
-1. Ir a `about:preferences`
-2. Buscar "proxy" en el buscador
-3. Click en "Settings..."
-4. Seleccionar "Manual proxy configuration"
-5. En "SOCKS Host": `127.0.0.1`, Port: `1080`
-6. Seleccionar "SOCKS v5"
-7. Marcar "Proxy DNS when using SOCKS v5"
-8. Click "OK"
-
----
 
 ## Protocolo de Gestión
 
 ### Conexión
 
 ```bash
-# Con netcat
+# Con netcat (user admin, password admin123)
 nc 127.0.0.1 8080
 
 # Con el cliente incluido
-./client -a 127.0.0.1 -p 8080
+./client -L 127.0.0.1 -P 8080
 ```
 
 ### Comandos Disponibles
