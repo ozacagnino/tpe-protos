@@ -6,24 +6,6 @@
 **Cuatrimestre:** 2C 2025  
 **Institución:** Instituto Tecnológico de Buenos Aires (ITBA)
 
----
-
-## Tabla de Contenidos
-
-1. [Descripción](#descripción)
-2. [Integrantes](#integrantes)
-3. [Ubicación de Materiales](#ubicación-de-materiales)
-4. [Requisitos del Sistema](#requisitos-del-sistema)
-5. [Procedimiento de Compilación](#procedimiento-de-compilación)
-6. [Artefactos Generados](#artefactos-generados)
-7. [Ejecución del Servidor](#ejecución-del-servidor)
-8. [Ejecución del Cliente de Gestión](#ejecución-del-cliente-de-gestión)
-9. [Ejemplos de Uso](#ejemplos-de-uso)
-10. [Protocolo de Gestión](#protocolo-de-gestión)
-11. [Estructura del Proyecto](#estructura-del-proyecto)
-
----
-
 ## Descripción
 
 Implementación completa de un servidor proxy SOCKSv5 según RFC 1928, con:
@@ -42,19 +24,18 @@ Implementación completa de un servidor proxy SOCKSv5 según RFC 1928, con:
 
 | Nombre | Legajo | Email |
 |--------|--------|-------|
-| [Nombre Apellido] | [Legajo] | [email@itba.edu.ar] |
-| Facundo Lasserre | [Legajo] | flasserre@itba.edu.ar |
+| Octavio Zacagnino | 64255 | ozacagnino@itba.edu.ar |
+| Facundo Lasserre | 62165 | flasserre@itba.edu.ar |
 
 ---
 
 ## Ubicación de Materiales
 
-Según lo requerido por la consigna, los materiales de entrega se encuentran organizados de la siguiente manera:
+Los materiales de entrega se encuentran organizados de la siguiente manera:
 
 | Material | Ubicación | Descripción |
 |----------|-----------|-------------|
 | **Informe Técnico** | `docs/informe.md` | Informe completo en formato Markdown |
-| **Informe HTML** | `docs/informe.html` | Versión HTML para imprimir como PDF |
 | **Consigna** | `docs/consigna.txt` | Enunciado del trabajo práctico |
 | **Código Fuente Servidor** | `src/server/` | Implementación del servidor SOCKS5 |
 | **Código Fuente Cliente** | `src/client/` | Cliente de gestión/monitoreo |
@@ -297,13 +278,6 @@ curl -x socks5h://admin:admin123@127.0.0.1:1080 -O https://example.com/file.zip
 7. Marcar "Proxy DNS when using SOCKS v5"
 8. Click "OK"
 
-### Uso con SSH
-
-```bash
-# Túnel SSH a través del proxy SOCKS
-ssh -o ProxyCommand='nc -X 5 -x 127.0.0.1:1080 %h %p' user@remote-host
-```
-
 ---
 
 ## Protocolo de Gestión
@@ -433,34 +407,18 @@ tpe-protos/
 
 | # | Requerimiento | Estado | Notas |
 |---|---------------|--------|-------|
-| 1 | 500+ conexiones simultáneas | ✅ | Probado con 1000+ |
-| 2 | Autenticación RFC 1929 | ✅ | Usuario/contraseña obligatorio |
-| 3 | CONNECT IPv4/IPv6/FQDN | ✅ | Todos los tipos soportados |
-| 4 | Robustez múltiples IPs | ✅ | Fallback automático |
-| 5 | Códigos de error completos | ✅ | Según RFC 1928 |
-| 6 | Métricas de monitoreo | ✅ | Conexiones y bytes |
-| 7 | Gestión en runtime | ✅ | ADDUSER/DELUSER |
-| 8 | Registro de acceso | ✅ | Logs por conexión |
+| 1 | 500+ conexiones simultáneas | OK | Probado con 1000+ |
+| 2 | Autenticación RFC 1929 | OK | Usuario/contraseña obligatorio |
+| 3 | CONNECT IPv4/IPv6/FQDN | OK | Todos los tipos soportados |
+| 4 | Robustez múltiples IPs | OK | Fallback automático |
+| 5 | Códigos de error completos | OK | Según RFC 1928 |
+| 6 | Métricas de monitoreo | OK | Conexiones y bytes |
+| 7 | Gestión en runtime | OK | ADDUSER/DELUSER |
+| 8 | Registro de acceso | OK | Logs por conexión |
 
 ---
 
 ## Notas Adicionales
-
-### Generar PDF del Informe
-
-Para generar el informe en formato PDF:
-
-1. Abrir `docs/informe.html` en un navegador
-2. Menú → Imprimir (Cmd+P / Ctrl+P)
-3. Destino: "Guardar como PDF"
-4. Guardar como `docs/informe.pdf`
-
-Alternativamente, con pandoc y LaTeX:
-
-```bash
-brew install --cask mactex  # macOS
-pandoc docs/informe.md -o docs/informe.pdf
-```
 
 ### Detener el Servidor
 
@@ -471,11 +429,3 @@ pkill socks5d
 ```
 
 ---
-
-## Licencia
-
-Este proyecto fue desarrollado como parte del Trabajo Práctico Especial de la materia Protocolos de Comunicación (72.07) del Instituto Tecnológico de Buenos Aires.
-
----
-
-**ITBA - Protocolos de Comunicación - 2C 2025**
