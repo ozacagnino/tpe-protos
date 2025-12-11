@@ -403,6 +403,93 @@ tpe-protos/
 
 ---
 
+## Pruebas de Estrés
+
+Las pruebas de estrés responden a las preguntas de la consigna:
+1. ¿Cuál es la máxima cantidad de conexiones simultáneas que soporta?
+2. ¿Cómo se degrada el throughput?
+
+### Requisitos
+
+- Python 3.6+
+- Servidor `socks5d` ejecutándose
+
+### Ejecución
+
+```bash
+# 1. Iniciar el servidor con el usuario de prueba
+./socks5d -u testuser:testpass123
+
+# 2. En otra terminal, ejecutar las pruebas
+cd docs
+python3 stress_test.py
+```
+
+### Configuración del Script
+
+El script usa estos valores por defecto (editables en `docs/stress_test.py`):
+
+```python
+SOCKS_HOST = '127.0.0.1'
+SOCKS_PORT = 1080
+USER = b'testuser'
+PASS = b'testpass123'
+```
+
+### Pruebas Realizadas
+
+1. **Conexiones Concurrentes:** Prueba progresiva con 10, 50, 100, 200, 500, 750 y 1000 conexiones simultáneas.
+
+2. **Throughput Sostenido:** Mide cuántas conexiones por segundo puede manejar durante 5 segundos.
+
+### Ejemplo de Salida
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║         PRUEBAS DE ESTRÉS - SERVIDOR SOCKS5                 ║
+╚══════════════════════════════════════════════════════════════╝
+
+✓ Servidor detectado en 127.0.0.1:1080
+
+════════════════════════════════════════════════════════════════
+FASE 1: MÁXIMAS CONEXIONES SIMULTÁNEAS
+════════════════════════════════════════════════════════════════
+
+============================================================
+TEST: 100 conexiones concurrentes
+============================================================
+  Conexiones exitosas:  100/100
+  Conexiones fallidas:  0
+  Tiempo total:         0.02s
+  Conexiones/segundo:   5000.00
+
+...
+
+════════════════════════════════════════════════════════════════
+RESUMEN DE RESULTADOS
+════════════════════════════════════════════════════════════════
+
+┌─────────────┬─────────┬─────────┬──────────┬────────────┐
+│ Conexiones  │ Éxito   │ Fallo   │ Tiempo   │ Rate       │
+├─────────────┼─────────┼─────────┼──────────┼────────────┤
+│          10 │      10 │       0 │    0.01s │    1000.0/s │
+│         100 │     100 │       0 │    0.02s │    5000.0/s │
+│        1000 │    1000 │       0 │    0.12s │    8333.3/s │
+└─────────────┴─────────┴─────────┴──────────┴────────────┘
+
+📊 CONCLUSIONES:
+   • Máx conexiones simultáneas exitosas: 1000
+   • Throughput sostenido: 850.5 conexiones/segundo
+
+✓ Resultados guardados en stress_results.txt
+```
+
+### Resultados Guardados
+
+Los resultados se guardan automáticamente en `docs/stress_results.txt`.
+
+---
+
 ## Cumplimiento de Requerimientos
 
 | # | Requerimiento | Estado | Notas |
